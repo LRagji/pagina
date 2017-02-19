@@ -1,0 +1,100 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/px-gauge/px-gauge.html">
+<link rel="import" href="../../bower_components/px-tabs/px-tab-set.html">
+<link rel="import" href="../../bower_components/px-tabs/px-tab-pages.html">
+<link rel="import" href="../../bower_components/px-simple-horizontal-bar-chart/px-simple-horizontal-bar-chart.html">
+<link rel="import" href="../../bower_components/px-view-header/px-view-header.html">
+
+<link rel="import" href="rm-gt-card-styles.html">
+
+<dom-module id="rm-gt-card">
+  <template>
+    <style include="rm-gt-card-styles" is="custom-style"></style>
+    <div class="flex flex--col  flex--stretch">
+      <div>
+        <px-view-header title="Turbine #{{turbinename}}" subtitle="A subtitle describing the view.">
+          <div class='right actionable'>
+            <input id="someId" checked={{shortView::change}} class="toggle__input" type="checkbox">
+            <label for="someId" class="toggle__label"></label>
+          </div>
+        </px-view-header>
+      </div>
+      <div hidden="{{!shortView}}">
+        <div class="flex flex--row">
+          <div>
+            <div class="flex flex--col flex--left flex--top">
+              <div>
+                <px-gauge value="5" max="10" bar-width="0" unit="rpm" error="[ [0, 12], [79, 100] ]" abnormal="[  [12, 32], [68, 79]  ]"
+                  anomaly="[ [32, 45],  [54, 68]  ]" normal="[ [45, 54] ]">
+                </px-gauge>
+              </div>
+              <div>
+                <px-gauge value="30" max="100" bar-width="0" unit="rpm" error="[ [0, 12], [79, 100] ]" abnormal="[  [12, 32], [68, 79]  ]"
+                  anomaly="[ [32, 45],  [54, 68]  ]" normal="[ [45, 54] ]">
+                </px-gauge>
+              </div>
+            </div>
+          </div>
+          <div class="flex__item flex__item--baseline">
+            <px-tab-set bare="true" no-bottom-border="true" selected="{{_chartSelection}}">
+              <px-tab>Peak Power Events</px-tab>
+              <px-tab>Time Series</px-tab>
+            </px-tab-set>
+            <px-tab-pages selected="{{_chartSelection}}">
+              <div class="flex flex--row flex--center flex--stretch">
+                <div class="flex__item--middle">
+                  <px-simple-horizontal-bar-chart width="auto" height="auto" bar-labels="values" legend-labels='["Bar One","Bar Two","Bar Three","Bar Four","Bar Five","Bar Six"]'
+                    chart-data='[29,20,15,18,8,10]'>
+                </div>
+                </px-simple-horizontal-bar-chart>
+              </div>
+              <div>Tab 2 content</div>
+            </px-tab-pages>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'rm-gt-card',
+      properties: {
+        shortView: {
+          type: Boolean,
+          value: true
+        },
+        _chartSelection: {
+          type: Number,
+          value: 0
+        },
+        turbinename: {
+          type: String,
+          value: 'Some Gas Turbine',
+          notify: true
+        }
+      },
+      read: function () {
+
+      },
+      attached: function () {
+        //this.turbineName = 'Some Gas Turbine';
+      },
+      toggleHideCard: function (evt) {
+        if (evt.target.checked) {
+          this._showCard();
+        } else {
+          this._hideCard();
+        }
+      },
+      _showCard: function () {
+        this.hidden = false;
+      },
+      _hideCard: function () {
+        this.hidden = true;
+      }
+    })
+
+  </script>
+</dom-module>

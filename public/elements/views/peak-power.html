@@ -1,0 +1,119 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../rm-gt-card/rm-gt-card.html">
+<link href="../../bower_components/px-card/px-card.html" rel="import" />
+<link rel="import" href="../../bower_components/px-context-browser/px-context-browser.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/px-sample-cards/hide-card.html">
+<link rel="import" href="../../bower_components/px-sample-cards/css/px-sample-cards-styles.html">
+<link rel="import" href="../../bower_components/px-spinner/px-spinner.html" />
+<link rel="import" href="../../bower_components/px-data-table/px-data-table.html" />
+
+<link href="sass/peak-power-styles.html" rel="import" />
+
+<dom-module id="peak-power">
+  <template>
+    <script type="text/javascript" src="../../bower_components/es6-promise/es6-promise.min.js"></script>
+    <style include="peak-power-styles" is="custom-style"></style>
+    <div class="flex flex--col  flex--stretch">
+      <div>
+        <px-context-browser  show-column-browser="true" show-column-typeahead="true" id="contextBrowser" label-field="name" id-field="id"
+          browser-context="[[_initialBrowserContext]]" show-chevron="true">
+        </px-context-browser>
+      </div>
+      <div class="flex  flex--center flex--middle">
+        <px-spinner id="all-compressor-px-spinner"></px-spinner>
+      </div>
+      <div>
+        <px-card>
+          <!--<rm-gt-card turbinename="Reliance Factory"></rm-gt-card>-->
+          <px-data-table id="tblGasTurbine" filterable="true" hide-pagination-control="true">
+            <px-data-table-column name="Turbines for Site" filterable="true" type="html"> </px-data-table-column>
+          </px-data-table>
+        </px-card>
+      </div>
+    </div>
+    <iron-ajax id="contextIronAjax" url="/api/predix-asset/root/root" last-response="{{_browserContext}}"></iron-ajax>
+  </template>
+  <script>
+    Polymer({
+      is: 'peak-power',
+      properties: {
+        _initialBrowserContext: {
+          type: Object,
+          computed: '_computeInitialBrowserContext(_browserContext)'
+        },
+        _nodeUri: {
+          type: String
+        },
+        _selectedContextTag: {
+          type: String,
+          value: ''
+        },
+      },
+
+      ready: function ready() {
+        var _this = this;
+        this.$.contextBrowser.handlers = {
+          // getChildren fires when a node is 'selected'
+          getChildren: function (parent, newIndex) {
+            return _this._getChildren(parent);
+          },
+          // itemOpenHandler fires when a node's 'open' link is clicked
+          itemOpenHandler: function (item) {
+            return _this._itemOpenHandler(item);
+          }
+        };
+      },
+
+      attached: function attached() {
+        this.$.contextIronAjax.generateRequest();
+        document.querySelector('#all-compressor-px-spinner').finished = true;
+      },
+
+      _computeInitialBrowserContext: function (_browserContext) {
+        if (typeof this._initialBrowserContext !== 'object') {
+          return _browserContext;
+        } else {
+          return this._initialBrowserContext;
+        }
+      },
+
+      _getChildren: function (node) {
+        var that = this;
+        return new Promise(function (resolve, reject) {
+          var req = new XMLHttpRequest();
+          req.open('GET', '/api/predix-asset' + node.uri);
+          req.onload = function () {
+            if (req.status === 200) {
+              resolve(JSON.parse(req.response));
+            } else {
+              reject(req.statusText);
+            }
+          };
+
+          req.onError = function () {
+            reject("Network Error");
+          };
+
+          req.send()
+        });
+      },
+
+      _itemOpenHandler: function (item) {
+        document.querySelector('#all-compressor-px-spinner').finished = false;
+        console.log("Selected: " + item.uri);
+        //TODO:Move into another function 
+        var data = [{}];
+        for (i = 0; i < 5; i++) {
+          data.push({
+            "Turbines for Site": "<rm-gt-card turbinename='" + i + "'></rm-gt-card>"
+          });
+        }
+        document.querySelector('#tblGasTurbine').tableData = data;
+        //End TODO
+        document.querySelector('#all-compressor-px-spinner').finished = true;
+      },
+    });
+
+  </script>
+</dom-module>
