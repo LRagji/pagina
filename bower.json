@@ -39,7 +39,8 @@
     "px-vis-xy-chart": "^0.3.0",
     "px-view-header": "^0.2.0",
     "iron-label": "^1.0.2",
-    "px-tabs": "^0.6.5"
+    "px-tabs": "^0.6.5",
+    "px-gauge": "^0.0.1"
   },
   "devDependencies": {
     "px-forms-design": "^1.1.1",
